@@ -4,15 +4,28 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <stdio.h>
+//#include <stdlib.h>     //added
 #include <errno.h>
 #include <unistd.h>
 
 #include <iostream>
 #include <sstream>
 
-int
-main()
+int main(int argc, char *argv[])
 {
+  if (argc != 3) {
+    std::cerr << "ERROR: Incorrect number of arguments.\n";
+    return -1;
+  }
+
+  int port_number = atoi(argv[1]);
+  std::string save_directory = argv[2];
+
+  if (port_number <= 1023) {
+    std::cerr << "ERROR: Invalid port number. Ports 0-1023 are not allowed.\n";
+    return -1;
+  }
+
   // create a socket using TCP IP
   int sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -26,7 +39,8 @@ main()
   // bind address to socket
   struct sockaddr_in addr;
   addr.sin_family = AF_INET;
-  addr.sin_port = htons(40000);     // short, network byte order
+  //addr.sin_port = htons(40000);     // short, network byte order
+  addr.sin_port = htons(port_number);
   addr.sin_addr.s_addr = inet_addr("127.0.0.1");
   memset(addr.sin_zero, '\0', sizeof(addr.sin_zero));
 

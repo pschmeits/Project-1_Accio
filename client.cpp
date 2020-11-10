@@ -11,8 +11,37 @@
 #include <sstream>
 
 int
-main()
+main(int argc, char *argv[])
 {
+  char* hostname;
+  int internet_address;
+  int port_number;
+  std::string filename;
+
+  if (argc != 4) {
+    std::cerr << "ERROR: Incorrect number of arguments.\n";
+    return -1;
+  }
+
+  if (strcmp(argv[1], "localhost") == 0) {
+
+  }
+  
+  hostname = argv[1];
+  internet_address = inet_addr(strcmp(hostname, "localhost") == 0 ? "127.0.0.1" : hostname);
+  port_number = atoi(argv[2]);
+  filename = argv[3];
+
+  if (internet_address == -1) {
+    std::cerr << "ERROR: Invalid hostname provided.\n";
+    return -1;
+  }
+
+  if (port_number <= 1023) {
+    std::cerr << "ERROR: Invalid port number provided.\n";
+    return -1;
+  }
+
   // create a socket using TCP IP
   int sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -28,13 +57,25 @@ main()
 
   struct sockaddr_in serverAddr;
   serverAddr.sin_family = AF_INET;
-  serverAddr.sin_port = htons(40000);     // short, network byte order
-  serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+  serverAddr.sin_port = htons(port_number);     // short, network byte order
+  serverAddr.sin_addr.s_addr = internet_address;
   memset(serverAddr.sin_zero, '\0', sizeof(serverAddr.sin_zero));
+
+/* 
+  if (bind(sockfd, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) == -1) {
+    std::cerr << "ERROR: Invalid hostname provided.\n";
+    return -1;
+  }
+  else
+  {
+    std::cout << "no issue with bind\n";
+  }
+ */
 
   // connect to the server
   if (connect(sockfd, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) == -1) {
-    perror("connect");
+    std::cerr << "ERROR: Invalid hostname provided.\n";
+    //perror("connect");
     return 2;
   }
 
